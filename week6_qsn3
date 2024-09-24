@@ -1,0 +1,60 @@
+#include <stdio.h>
+
+int main() {
+    int n; // Number of processes
+    int id[100], arrivalTime[100], burstTime[100];
+    int waitingTime[100], turnaroundTime[100];
+    int completed[100] = {0}; // To track completed processes
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    // Input process details
+    for (int i = 0; i < n; i++) {
+        id[i] = i + 1; // Process ID
+        printf("Enter arrival time for Process %d: ", id[i]);
+        scanf("%d", &arrivalTime[i]);
+        printf("Enter burst time for Process %d: ", id[i]);
+        scanf("%d", &burstTime[i]);
+        waitingTime[i] = -1; // Initialize waiting time as -1 (not completed)
+    }
+
+    int time = 0; // Current time
+    int completedCount = 0; // Number of completed processes
+
+    // Scheduling loop
+    while (completedCount < n) {
+        int idx = -1;
+        int minBurst = 9999;
+
+        // Find the process with the shortest burst time that has arrived
+        for (int i = 0; i < n; i++) {
+            if (arrivalTime[i] <= time && waitingTime[i] == -1) {
+                if (burstTime[i] < minBurst) {
+                    minBurst = burstTime[i];
+                    idx = i;
+                }
+            }
+        }
+
+        if (idx != -1) {
+            // Process found
+            waitingTime[idx] = time - arrivalTime[idx];
+            time += burstTime[idx];
+            turnaroundTime[idx] = waitingTime[idx] + burstTime[idx];
+            completedCount++;
+        } else {
+            // No process is ready, move time forward
+            time++;
+        }
+    }
+
+    // Display results
+    printf("\nProcess ID\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\n", id[i], arrivalTime[i],
+               burstTime[i], waitingTime[i], turnaroundTime[i]);
+    }
+
+    return 0;
+}

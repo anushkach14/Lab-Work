@@ -1,0 +1,39 @@
+#include <stdio.h>
+
+int main() {
+    int n; // Number of processes
+    int id[100], arrivalTime[100], burstTime[100];
+    int waitingTime[100], turnaroundTime[100];
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    // Input process details
+    for (int i = 0; i < n; i++) {
+        id[i] = i + 1; // Process ID
+        printf("Enter arrival time for Process %d: ", id[i]);
+        scanf("%d", &arrivalTime[i]);
+        printf("Enter burst time for Process %d: ", id[i]);
+        scanf("%d", &burstTime[i]);
+    }
+
+    // Calculate waiting time
+    waitingTime[0] = 0; // First process has no waiting time
+    for (int i = 1; i < n; i++) {
+        waitingTime[i] = waitingTime[i - 1] + burstTime[i - 1];
+    }
+
+    // Calculate turnaround time
+    for (int i = 0; i < n; i++) {
+        turnaroundTime[i] = waitingTime[i] + burstTime[i];
+    }
+
+    // Display results
+    printf("\nProcess ID\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\n", id[i], arrivalTime[i],
+               burstTime[i], waitingTime[i], turnaroundTime[i]);
+    }
+
+    return 0;
+}

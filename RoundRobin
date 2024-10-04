@@ -4,9 +4,9 @@
 #define MAX 100
 
 typedef struct {
-    int pid;        // Process ID
-    int burstTime;  // Burst Time
-    int remainingTime; // Remaining Time
+    int pid;        
+    int burstTime;  
+    int remainingTime; 
 } Process;
 
 void roundRobin(Process processes[], int n, int timeQuantum) {

@@ -1,0 +1,12 @@
+#!/bin/bash
+read -p "Enter Cost Price of the item: " cp
+read -p "Enter Selling Price of the item: " sp
+if (( $(bc <<< "$sp > $cp") )); then
+    profit=$(bc <<< "$sp - $cp")
+    echo "Profit of Rs. $profit"
+elif (( $(bc <<< "$sp < $cp") )); then
+    loss=$(bc <<< "$cp - $sp")
+    echo "Loss of Rs. $loss"
+else
+    echo "No profit or loss. The selling price is equal to the cose price."
+fi

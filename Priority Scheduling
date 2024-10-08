@@ -1,0 +1,80 @@
+#include <stdio.h>
+
+#define MAX 10
+
+typedef struct {
+    int id;
+    int burst_time;
+    int priority;
+    int arrival_time;
+} Process;
+
+void sortProcesses(Process p[], int n) {
+    Process temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (p[i].priority > p[j].priority || 
+               (p[i].priority == p[j].priority && p[i].arrival_time > p[j].arrival_time)) {
+                temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+}
+
+void calcWaitTime(Process p[], int n, int wait[]) {
+    wait[0] = 0;  // First process has no waiting time
+    for (int i = 1; i < n; i++) {
+        wait[i] = p[i - 1].burst_time + wait[i - 1];
+        if (wait[i] < p[i].arrival_time) {
+            wait[i] = p[i].arrival_time; // Wait until the process arrives
+        }
+    }
+}
+
+void calcTurnaroundTime(Process p[], int n, int wait[], int turn[]) {
+    for (int i = 0; i < n; i++) {
+        turn[i] = p[i].burst_time + wait[i];
+    }
+}
+
+void avgTime(Process p[], int n) {
+    int wait[MAX], turn[MAX];
+    
+    calcWaitTime(p, n, wait);
+    calcTurnaroundTime(p, n, wait, turn);
+    
+    float total_wait = 0, total_turn = 0;
+
+    printf("\nProcess\tBurst Time\tPriority\tArrival Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        total_wait += wait[i];
+        total_turn += turn[i];
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", p[i].id, p[i].burst_time, p[i].priority, p[i].arrival_time, wait[i], turn[i]);
+    }
+    
+    printf("\nAverage Waiting Time: %.2f", total_wait / n);
+    printf("\nAverage Turnaround Time: %.2f\n", total_turn / n);
+}
+
+int main() {
+    Process p[MAX];
+    int n;
+
+    printf("Enter number of processes: ", MAX);
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        p[i].id = i + 1; 
+        printf("Enter Burst Time, Priority, and Arrival Time for Process %d: ", i + 1);
+        scanf("%d %d %d", &p[i].burst_time, &p[i].priority, &p[i].arrival_time);
+    }
+
+
+    sortProcesses(p, n);
+
+    avgTime(p, n);
+
+    return 0;
+}

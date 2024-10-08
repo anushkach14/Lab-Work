@@ -1,0 +1,12 @@
+#!/bin/bash
+read -p "Enter basic salary: " basic_salary
+if(( $(bc <<< "$basic_salary < 1500") )); then   
+    hra=$(bc <<< "0.10 * $basic_salary")
+    da=$(bc <<< "0.90 * $basic_salary")
+else
+    hra=500
+    da=$(bc <<< "0.98 * $basic_salary")
+fi
+
+gross_salary=$(bc <<< "$basic_salary + $hra + $da")
+echo "Gross salary is :Rs. $gross_salary"

@@ -1,0 +1,131 @@
+#include <stdio.h>
+
+#define MAX 10
+
+typedef struct {
+    int processID;      
+    int burstTime;      
+    int arrivalTime;    
+    int completionTime;
+    int waitingTime;   
+    int turnaroundTime; 
+} Process;
+
+typedef struct {
+    Process queue[MAX]; // Array to hold processes
+    int front;          
+    int rear;          
+} Queue;
+
+void initQueue(Queue* q) {  //initialize queue
+    q->front = -1;
+    q->rear = -1;
+}
+
+int isEmpty(Queue* q) {
+    return (q->front == -1);
+}
+
+int isFull(Queue* q) {
+    return (q->rear == MAX - 1);
+}
+
+void enqueue(Queue* q, Process p) {
+    if (!isFull(q)) {
+        if (isEmpty(q)) {
+            q->front = 0;  // Set front to 0 if the queue was empty
+        }
+        q->queue[++q->rear] = p;  // increments rear index and assigns p to that position in the queue.
+    } else {
+        printf("Queue is full!\n");
+    }
+}
+
+Process dequeue(Queue* q) {
+    Process p = {0, 0, 0, 0, 0, 0};  // Initialize an empty process. Serves as a placeholder to return in case the queue is empty.
+
+    if (!isEmpty(q)) {
+        p = q->queue[q->front];  // Get the process at the front of the queue
+        if (q->front >= q->rear) {  //gives the last one process
+            q->front = q->rear = -1;  // Reset queue if the last process is dequeued. Means the queue is empty.
+        } else {
+            q->front++;  // Move front to the next process
+        }
+    } else {
+        printf("Queue is empty!\n");
+    }
+    return p;  // Return the dequeued process
+}
+
+// Function to calculate waiting and turnaround times
+void calculateTimes(Queue* q) {
+    int time = 0;  // Initialize current time
+    int n = q->rear + 1;  // Number of processes
+
+    for (int i = 0; i < n; i++) {
+        Process p = dequeue(q);  // Dequeue the next process
+
+        // Update time to the arrival time if needed
+        if (time < p.arrivalTime) {
+            time = p.arrivalTime; // Wait until the process arrives
+        }
+        
+        // Calculate the completion time
+        time += p.burstTime;  
+        p.completionTime = time;  // Set the completion time
+        
+        // Calculate turnaround time
+        p.turnaroundTime = p.completionTime - p.arrivalTime; 
+        
+        // Calculate waiting time
+        p.waitingTime = p.turnaroundTime - p.burstTime;  
+
+        // Output the process details
+        printf("Process %d: Completion Time = %d, Turnaround Time = %d, Waiting Time = %d\n", 
+               p.processID, p.completionTime, p.turnaroundTime, p.waitingTime);
+    }
+}
+
+
+void sortProcesses(Process* proc, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (proc[j].arrivalTime > proc[j + 1].arrivalTime) {
+                // Swap the processes
+                Process temp = proc[j];
+                proc[j] = proc[j + 1];
+                proc[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    int n;
+
+    // Input the number of processes
+    printf("Enter the number of processes (max %d): ", MAX);
+    scanf("%d", &n);
+
+    Queue q;  // Create a queue
+    initQueue(&q);  // Initialize the queue
+
+    Process proc[MAX];  // Statically allocate an array of processes
+
+    // Input for each process (ID, Arrival Time, Burst Time)
+    for (int i = 0; i < n; i++) {
+        proc[i].processID = i + 1;  // Assign process IDs starting from 1
+        printf("Enter arrival time and burst time for process %d: ", i + 1);
+        scanf("%d %d", &proc[i].arrivalTime, &proc[i].burstTime);
+    }
+
+    // Enqueue processes into the queue based on their arrival times (FCFS order)
+    for (int i = 0; i < n; i++) {
+        enqueue(&q, proc[i]);
+    }
+
+    // Calculate and display waiting and turnaround times using the queue
+    calculateTimes(&q);
+
+    return 0;  // End of the program
+}

@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+typedef struct {
+    int pid;            // Process ID
+    int burstTime;      // Burst time of the process
+    int remainingTime;  // Remaining time for the process
+    int arrivalTime;    // Arrival time of the process
+} Process;
+
+// Function to add processes that have arrived by the current time to the queue
+void checkArrival(Process processes[], int n, int time, int queue[], int *front, int *rear) {
+    for (int i = 0; i < n; i++) {
+        if (processes[i].arrivalTime <= time && processes[i].remainingTime > 0) {
+            int already_in_queue = 0;
+            for (int j = *front; j <= *rear; j++) {
+                if (queue[j] == i) {
+                    already_in_queue = 1;
+                    break;
+                }
+            }
+            if (!already_in_queue) {
+                queue[++(*rear)] = i;  // Add the process to the queue
+                if (*front == -1) {
+                    *front = 0;  // If the queue was empty, set front to 0
+                }
+            }
+        }
+    }
+}
+
+// Function for Round Robin scheduling with arrival time
+void roundRobin(Process processes[], int n, int timeQuantum) {
+    int time = 0;
+    int completed = 0;
+    int queue[MAX], front = -1, rear = -1;  // Queue to store ready processes
+    
+    while (completed <

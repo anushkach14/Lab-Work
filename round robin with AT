@@ -5,36 +5,67 @@
 
 typedef struct {
     int pid;            // Process ID
-    int burstTime;      // Burst time of the process
-    int remainingTime;  // Remaining time for the process
-    int arrivalTime;    // Arrival time of the process
+    int burstTime;     // Total burst time required
+    int remainingTime; // Remaining burst time
+    int arrivalTime;   // Arrival time of the process
 } Process;
 
-// Function to add processes that have arrived by the current time to the queue
-void checkArrival(Process processes[], int n, int time, int queue[], int *front, int *rear) {
-    for (int i = 0; i < n; i++) {
-        if (processes[i].arrivalTime <= time && processes[i].remainingTime > 0) {
-            int already_in_queue = 0;
-            for (int j = *front; j <= *rear; j++) {
-                if (queue[j] == i) {
-                    already_in_queue = 1;
-                    break;
+void roundRobin(Process processes[], int n, int timeQuantum) {
+    int time = 0;           // Current time
+    int completed = 0;      // Count of completed processes
+    int i;
+
+    // While not all processes are completed
+    while (completed < n) {
+        int all_done = 1; // Flag to check if all processes are done in this cycle
+        for (i = 0; i < n; i++) {
+            // Check if the process has arrived and has remaining time
+            if (processes[i].arrivalTime <= time && processes[i].remainingTime > 0) {
+                all_done = 0; // There are still processes to be executed
+                if (processes[i].remainingTime > timeQuantum) {
+                    // Process gets the full time quantum
+                    time += timeQuantum;
+                    processes[i].remainingTime -= timeQuantum;
+                } else {
+                    // Process finishes in this time slice
+                    time += processes[i].remainingTime;
+                    printf("Process %d completed at time %d\n", processes[i].pid, time);
+                    processes[i].remainingTime = 0; // Mark process as completed
+                    completed++; // Increase completed process count
                 }
             }
-            if (!already_in_queue) {
-                queue[++(*rear)] = i;  // Add the process to the queue
-                if (*front == -1) {
-                    *front = 0;  // If the queue was empty, set front to 0
-                }
-            }
+        }
+        // If all processes are done and no remaining process can be executed, move time forward
+        if (all_done) {
+            time++; // If no process can execute, just move time forward
         }
     }
 }
 
-// Function for Round Robin scheduling with arrival time
-void roundRobin(Process processes[], int n, int timeQuantum) {
-    int time = 0;
-    int completed = 0;
-    int queue[MAX], front = -1, rear = -1;  // Queue to store ready processes
-    
-    while (completed <
+int main() {
+    int n, i, timeQuantum;
+    Process processes[MAX];
+
+    // Input number of processes
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    // Input burst times and arrival times for each process
+    for (i = 0; i < n; i++) {
+        processes[i].pid = i + 1; // Assign process ID
+        printf("Enter burst time for process %d: ", processes[i].pid);
+        scanf("%d", &processes[i].burstTime);
+        printf("Enter arrival time for process %d: ", processes[i].pid);
+        scanf("%d", &processes[i].arrivalTime);
+        processes[i].remainingTime = processes[i].burstTime; // Initialize remaining time
+    }
+
+    // Input time quantum
+    printf("Enter time quantum: ");
+    scanf("%d", &timeQuantum);
+
+    // Call the round robin scheduling function
+    roundRobin(processes, n, timeQuantum);
+
+    return 0;
+}

@@ -1,0 +1,129 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX 10
+
+typedef struct {
+    int id;
+    int burst_time;
+    int priority;
+    int arrival_time;
+} Process;
+
+typedef struct {
+    Process queue[MAX];
+    int front;
+    int rear;
+} Queue;
+
+void initQueue(Queue *q) {
+    q->front = q->rear = -1;
+}
+
+bool isEmpty(Queue *q) {
+    return (q->front == -1);
+}
+
+bool isFull(Queue *q) {
+    return (q->rear == MAX - 1);
+}
+
+void enqueue(Queue *q, Process p) {
+    if (!isFull(q)) {
+        if (isEmpty(q)) {
+            q->front = 0;
+        }
+        q->rear++;
+        q->queue[q->rear] = p;
+    } else {
+        printf("Queue is full!\n");
+    }
+}
+
+Process dequeue(Queue *q) {
+    Process temp = {0, 0, 0, 0};
+    if (!isEmpty(q)) {
+        temp = q->queue[q->front];
+        if (q->front == q->rear) {
+            q->front = q->rear = -1;  // Queue becomes empty
+        } else {
+            q->front++;
+        }
+    } else {
+        printf("Queue is empty!\n");
+    }
+    return temp;
+}
+
+void sortProcesses(Queue *q) {
+    Process temp;
+    for (int i = q->front; i < q->rear; i++) {
+        for (int j = i + 1; j <= q->rear; j++) {
+            if (q->queue[i].priority > q->queue[j].priority || 
+               (q->queue[i].priority == q->queue[j].arrival_time && q->queue[i].arrival_time > q->queue[j].arrival_time)) {
+                temp = q->queue[i];
+                q->queue[i] = q->queue[j];
+                q->queue[j] = temp;
+            }
+        }
+    }
+}
+
+void calcWaitTime(Queue *q, int wait[]) {
+    wait[0] = q->queue[q->front].arrival_time;
+    for (int i = 1; i <= q->rear; i++) {
+        wait[i] = wait[i - 1] + q->queue[i - 1].burst_time;
+        if (wait[i] < q->queue[i].arrival_time) {
+            wait[i] = q->queue[i].arrival_time;
+        }
+        wait[i] -= q->queue[i].arrival_time;
+    }
+}
+
+void calcTurnaroundTime(Queue *q, int wait[], int turn[]) {
+    for (int i = q->front; i <= q->rear; i++) {
+        turn[i] = q->queue[i].burst_time + wait[i];
+    }
+}
+
+void avgTime(Queue *q) {
+    int wait[MAX], turn[MAX];
+    
+    calcWaitTime(q, wait);
+    calcTurnaroundTime(q, wait, turn);
+    
+    float total_wait = 0, total_turn = 0;
+
+    printf("\nProcess\tBurst Time\tPriority\tArrival Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = q->front; i <= q->rear; i++) {
+        total_wait += wait[i];
+        total_turn += turn[i];
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", q->queue[i].id, q->queue[i].burst_time, q->queue[i].priority, q->queue[i].arrival_time, wait[i], turn[i]);
+    }
+    
+    printf("\nAverage Waiting Time: %.2f", total_wait / (q->rear - q->front + 1));
+    printf("\nAverage Turnaround Time: %.2f\n", total_turn / (q->rear - q->front + 1));
+}
+
+int main() {
+    Queue processQueue;
+    initQueue(&processQueue);
+    
+    int n;
+    Process p;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        p.id = i + 1; 
+        printf("Enter Burst Time, Priority, and Arrival Time for Process %d: ", i + 1);
+        scanf("%d %d %d", &p.burst_time, &p.priority, &p.arrival_time);
+        enqueue(&processQueue, p);
+    }
+
+    sortProcesses(&processQueue);
+    avgTime(&processQueue);
+
+    return 0;
+}

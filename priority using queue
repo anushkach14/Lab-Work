@@ -1,49 +1,54 @@
 #include <stdio.h>
-#include <stdbool.h>
+#include <stdlib.h>
 
 #define MAX 10
 
 typedef struct {
-    int id;
-    int burst_time;
-    int priority;
-    int arrival_time;
+    int id;             // Process ID
+    int burst_time;     // Burst time of the process
+    int priority;       // Priority of the process
+    int arrival_time;   // Arrival time of the process
 } Process;
 
 typedef struct {
     Process queue[MAX];
-    int front;
-    int rear;
+    int front;          // Index of the front of the queue
+    int rear;           // Index of the rear of the queue
 } Queue;
 
+// Function to initialize the queue
 void initQueue(Queue *q) {
     q->front = q->rear = -1;
 }
 
-bool isEmpty(Queue *q) {
-    return (q->front == -1);
+// Function to check if the queue is empty
+int isEmpty(Queue *q) {
+    return (q->front == -1);  // Return 1 (true) if empty, 0 (false) otherwise
 }
 
-bool isFull(Queue *q) {
-    return (q->rear == MAX - 1);
+// Function to check if the queue is full
+int isFull(Queue *q) {
+    return (q->rear == MAX - 1);  // Return 1 (true) if full, 0 (false) otherwise
 }
 
+// Function to add a process to the queue
 void enqueue(Queue *q, Process p) {
     if (!isFull(q)) {
         if (isEmpty(q)) {
             q->front = 0;
         }
         q->rear++;
-        q->queue[q->rear] = p;
+        q->queue[q->rear] = p;  // Add process to the rear of the queue
     } else {
         printf("Queue is full!\n");
     }
 }
 
+// Function to remove a process from the queue
 Process dequeue(Queue *q) {
     Process temp = {0, 0, 0, 0};
     if (!isEmpty(q)) {
-        temp = q->queue[q->front];
+        temp = q->queue[q->front];  // Get the process at the front
         if (q->front == q->rear) {
             q->front = q->rear = -1;  // Queue becomes empty
         } else {
@@ -52,15 +57,17 @@ Process dequeue(Queue *q) {
     } else {
         printf("Queue is empty!\n");
     }
-    return temp;
+    return temp;  // Return the dequeued process
 }
 
+// Function to sort processes based on priority and arrival time
 void sortProcesses(Queue *q) {
     Process temp;
     for (int i = q->front; i < q->rear; i++) {
         for (int j = i + 1; j <= q->rear; j++) {
             if (q->queue[i].priority > q->queue[j].priority || 
-               (q->queue[i].priority == q->queue[j].arrival_time && q->queue[i].arrival_time > q->queue[j].arrival_time)) {
+               (q->queue[i].priority == q->queue[j].priority && q->queue[i].arrival_time > q->queue[j].arrival_time)) {
+                // Swap processes if priority is higher or equal and arrival time is greater
                 temp = q->queue[i];
                 q->queue[i] = q->queue[j];
                 q->queue[j] = temp;
@@ -69,46 +76,56 @@ void sortProcesses(Queue *q) {
     }
 }
 
+// Function to calculate waiting times for processes
 void calcWaitTime(Queue *q, int wait[]) {
-    wait[0] = q->queue[q->front].arrival_time;
+    wait[0] = q->queue[q->front].arrival_time; // Waiting time for the first process
     for (int i = 1; i <= q->rear; i++) {
-        wait[i] = wait[i - 1] + q->queue[i - 1].burst_time;
+        wait[i] = wait[i - 1] + q->queue[i - 1].burst_time; // Calculate waiting time
         if (wait[i] < q->queue[i].arrival_time) {
-            wait[i] = q->queue[i].arrival_time;
+            wait[i] = q->queue[i].arrival_time; // Wait until the process arrives
         }
-        wait[i] -= q->queue[i].arrival_time;
+        wait[i] -= q->queue[i].arrival_time; // Adjust waiting time
     }
 }
 
+// Function to calculate turnaround times for processes
 void calcTurnaroundTime(Queue *q, int wait[], int turn[]) {
     for (int i = q->front; i <= q->rear; i++) {
-        turn[i] = q->queue[i].burst_time + wait[i];
+        turn[i] = q->queue[i].burst_time + wait[i]; // Turnaround time = Burst Time + Waiting Time
     }
 }
 
+// Function to calculate and display average waiting and turnaround times
 void avgTime(Queue *q) {
     int wait[MAX], turn[MAX];
-    
-    calcWaitTime(q, wait);
-    calcTurnaroundTime(q, wait, turn);
-    
+
+    calcWaitTime(q, wait); // Calculate waiting times
+    calcTurnaroundTime(q, wait, turn); // Calculate turnaround times
+
     float total_wait = 0, total_turn = 0;
 
     printf("\nProcess\tBurst Time\tPriority\tArrival Time\tWaiting Time\tTurnaround Time\n");
     for (int i = q->front; i <= q->rear; i++) {
         total_wait += wait[i];
         total_turn += turn[i];
-        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", q->queue[i].id, q->queue[i].burst_time, q->queue[i].priority, q->queue[i].arrival_time, wait[i], turn[i]);
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", 
+               q->queue[i].id, 
+               q->queue[i].burst_time, 
+               q->queue[i].priority, 
+               q->queue[i].arrival_time, 
+               wait[i], 
+               turn[i]);
     }
-    
+
     printf("\nAverage Waiting Time: %.2f", total_wait / (q->rear - q->front + 1));
     printf("\nAverage Turnaround Time: %.2f\n", total_turn / (q->rear - q->front + 1));
 }
 
+// Main function
 int main() {
     Queue processQueue;
-    initQueue(&processQueue);
-    
+    initQueue(&processQueue); // Initialize the queue
+
     int n;
     Process p;
 
@@ -119,11 +136,11 @@ int main() {
         p.id = i + 1; 
         printf("Enter Burst Time, Priority, and Arrival Time for Process %d: ", i + 1);
         scanf("%d %d %d", &p.burst_time, &p.priority, &p.arrival_time);
-        enqueue(&processQueue, p);
+        enqueue(&processQueue, p); // Add process to the queue
     }
 
-    sortProcesses(&processQueue);
-    avgTime(&processQueue);
+    sortProcesses(&processQueue); // Sort processes by priority and arrival time
+    avgTime(&processQueue); // Calculate and display average times
 
     return 0;
 }

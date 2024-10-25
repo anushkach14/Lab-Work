@@ -1,0 +1,10 @@
+#!/bin/bash
+read -p "Enter file 1 name: " file1
+read -p "Enter file 2 name: " file2
+if diff "$file1" "$file2" >/dev/null; then
+    echo "Files are same"
+    rm "$file1"
+    echo "File 1 '$file1' has been removed"
+else
+    echo "Files are different."
+fi

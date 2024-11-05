@@ -1,0 +1,40 @@
+package week10_major;
+abstract class Animal {
+    private String name;
+
+    public Animal(String name) {
+        this.name = name;
+    }
+
+    // Encapsulation: Getter for name
+    public String getName() {
+        return name;
+    }
+
+    // Abstract method (No implementation, to be implemented by subclasses)
+    public abstract void makeSound();
+}
+
+// Inheritance: Dog class inherits from Animal
+class Dog extends Animal {
+
+    // Constructor
+    public Dog(String name) {
+        super(name);  // Call the constructor of Animal class
+    }
+
+    // Polymorphism: Overriding the makeSound method
+    @Override
+    public void makeSound() {
+        System.out.println(getName() + " says Woof!");
+    }
+}
+public class fundamentals {
+     public static void main(String[] args) {
+        // Abstraction and Encapsulation: Create an object of Dog, which is an Animal
+        Animal myDog = new Dog("Buddy");
+
+        // Polymorphism: Calling the overridden method in the Dog class
+        myDog.makeSound();  // Outputs: Buddy says Woof!
+    }
+}

@@ -1,0 +1,53 @@
+// Base class: Animal
+class Animal {
+    // Method in the base class
+    public void sound() {
+        System.out.println("Animals make sounds");
+    }
+}
+
+// Derived class: Dog inherits from Animal
+class Dog extends Animal {
+    // Overriding the sound method
+    @Override
+    public void sound() {
+        System.out.println("Dog barks");
+    }
+}
+
+// Derived class: Cat inherits from Animal
+class Cat extends Animal {
+    // Overriding the sound method
+    @Override
+    public void sound() {
+        System.out.println("Cat meows");
+    }
+}
+
+// Derived class: Cow inherits from Animal
+class Cow extends Animal {
+    // Overriding the sound method
+    @Override
+    public void sound() {
+        System.out.println("Cow moos");
+    }
+}
+
+// Main class to demonstrate Inheritance and Polymorphism
+public class Main {
+    public static void main(String[] args) {
+        // Creating objects of the subclasses
+        Animal myDog = new Dog();    // Polymorphism: Animal reference, Dog object
+        Animal myCat = new Cat();    // Polymorphism: Animal reference, Cat object
+        Animal myCow = new Cow();    // Polymorphism: Animal reference, Cow object
+
+        // Calling the sound method - Demonstrating Polymorphism
+        myDog.sound();  // Dog barks
+        myCat.sound();  // Cat meows
+        myCow.sound();  // Cow moos
+        
+        // Base class method call
+        Animal genericAnimal = new Animal();
+        genericAnimal.sound();  // Animals make sounds
+    }
+}

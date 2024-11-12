@@ -1,4 +1,3 @@
-Write a shell script program to count and report the number of entries present in each subdirectory mentioned in the path which is supplied as command line argument.
 #!/bin/bash
 if [ -z "$1" ]; then
   echo "Usage: $0 <directory_path>"
